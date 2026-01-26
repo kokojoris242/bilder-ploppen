@@ -14,7 +14,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: transparent;
             min-height: 100vh;
             overflow: hidden;
         }
@@ -57,11 +57,18 @@
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         }
 
+        .content__img-inner video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
         .cursor {
             position: fixed;
             width: 20px;
             height: 20px;
-            border: 2px solid white;
+            border: 2px solid #333;
             border-radius: 50%;
             pointer-events: none;
             z-index: 9999;
@@ -80,13 +87,21 @@
 
     <script>
         const images = [
-            'images/add_a_tischdecke_in_rot_behind_das_corssaint_liegt_auf_einer_roten_tischdecke__qiq91lq78zyl1e3z3ly5_0.jpg',
-            'images/53c1af85-dba4-4230-8893-7e89fb111d11.jpg',
-            'images/C0005 (23-40-09-19)f.jpg',
-            'images/DSC00892csd.jpg',
-            'images/hf_20260116_094959_115a9fc0-4089-46bf-8561-1e41f1235f73.jpg',
-            'images/kl.jpg',
-            'images/u9488714862_httpss-mj-run6KoRSJOz3Gg_vogue_model_in_a_cloud__pi_e1b27992-3590-4ab6-a49d-a10c1e82d974-enhanced (0-00-02-09)2c.jpg'
+            { type: 'video', src: 'images/01.mp4' },
+            { type: 'image', src: 'images/02.jpg' },
+            { type: 'image', src: 'images/03.jpg' },
+            { type: 'image', src: 'images/04.jpg' },
+            { type: 'image', src: 'images/05.png' },
+            { type: 'video', src: 'images/06.mp4' },
+            { type: 'image', src: 'images/07.jpg' },
+            { type: 'image', src: 'images/08.jpg' },
+            { type: 'image', src: 'images/09.jpg' },
+            { type: 'image', src: 'images/10.jpg' },
+            { type: 'video', src: 'images/10.mp4' },
+            { type: 'image', src: 'images/11.jpg' },
+            { type: 'image', src: 'images/12.jpg' },
+            { type: 'image', src: 'images/13.jpg' },
+            { type: 'image', src: 'images/14.jpg' }
         ];
 
         function lerp(a, b, n) {
@@ -187,9 +202,19 @@
                 const img = this.images[this.imgPosition];
                 gsap.killTweensOf(img.DOM.el);
 
+                const video = img.DOM.inner.querySelector('video');
+                if (video) {
+                    video.currentTime = 0;
+                    video.play();
+                }
+
                 gsap.timeline({
                     onStart: () => { this.activeImagesCount++; this.isIdle = false; },
-                    onComplete: () => { this.activeImagesCount--; if (this.activeImagesCount === 0) this.isIdle = true; }
+                    onComplete: () => { 
+                        this.activeImagesCount--; 
+                        if (this.activeImagesCount === 0) this.isIdle = true;
+                        if (video) video.pause();
+                    }
                 })
                 .fromTo(img.DOM.el, {
                     opacity: 1, scale: 1, zIndex: this.zIndexVal,
@@ -205,10 +230,16 @@
         }
 
         const container = document.getElementById('container');
-        images.forEach(url => {
+        images.forEach(item => {
             const div = document.createElement('div');
             div.className = 'content__img';
-            div.innerHTML = `<div class="content__img-inner" style="background-image: url(${url})"></div>`;
+            
+            if (item.type === 'video') {
+                div.innerHTML = `<div class="content__img-inner"><video src="${item.src}" muted loop></video></div>`;
+            } else {
+                div.innerHTML = `<div class="content__img-inner" style="background-image: url(${item.src})"></div>`;
+            }
+            
             container.appendChild(div);
         });
 
